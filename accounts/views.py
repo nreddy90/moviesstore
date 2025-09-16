@@ -4,6 +4,8 @@ from .forms import CustomUserCreationForm, CustomErrorList
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 
 @login_required
 def logout(request):
@@ -47,3 +49,24 @@ def orders(request):
     template_data['orders'] = request.user.order_set.all()
     return render(request, 'accounts/orders.html',
         {'template_data': template_data})
+
+@login_required
+def change_password(request):
+    template_data = {}
+    template_data['title'] = 'Change Password'
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Keep the user logged in after password change
+            update_session_auth_hash(request, user)
+            template_data['success'] = 'Your password was successfully updated!'
+            template_data['form'] = PasswordChangeForm(request.user)
+            return render(request, 'accounts/change_password.html', {'template_data': template_data})
+        else:
+            template_data['form'] = form
+            return render(request, 'accounts/change_password.html', {'template_data': template_data})
+    else:
+        template_data['form'] = PasswordChangeForm(request.user)
+        return render(request, 'accounts/change_password.html', {'template_data': template_data})

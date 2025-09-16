@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Movie, Review
 from django.contrib.auth.decorators import login_required
+from django.db.models import F
 
 def index(request):
     search_term = request.GET.get('search')
@@ -20,7 +21,7 @@ def show(request, id):
     template_data = {}
     template_data['title'] = movie.name
     template_data['movie'] = movie
-    template_data['reviews'] = reviews
+    template_data['reviews'] = reviews.order_by('-date')
     return render(request, 'movies/show.html', {'template_data': template_data})
 
 @login_required
@@ -59,4 +60,25 @@ def delete_review(request, id, review_id):
     review = get_object_or_404(Review, id=review_id,
         user=request.user)
     review.delete()
+    return redirect('movies.show', id=id)
+
+def allComments(request):
+    reviews = Review.objects.all()
+    template_data = {}
+    template_data['reviews'] = reviews.order_by('-count')
+    return render(request, 'movies/allComments.html', {'template_data': template_data})
+
+@login_required
+def upVote_review(request, id, review_id):
+    review = get_object_or_404(Review, id=review_id)
+    review.count += 1
+    review.save()
+    return redirect('movies.show', id=id)
+
+def like_review(request, id, review_id):
+    review = get_object_or_404(Review, id=review_id)
+    if request.user in review.likes.all():
+        review.likes.remove(request.user)
+    else:
+        review.likes.add(request.user)
     return redirect('movies.show', id=id)

@@ -81,3 +81,6 @@ def like_review(request, id, review_id):
     else:
         review.likes.add(request.user)
     return redirect('movies.show', id=id)
+
+def template(request):
+    return render(request, 'movies/template.html')

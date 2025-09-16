@@ -21,6 +21,10 @@ def show(request, id):
     template_data['title'] = movie.name
     template_data['movie'] = movie
     template_data['reviews'] = reviews.order_by('-date')
+    is_favorited = False
+    if request.user.is_authenticated:
+        is_favorited = Movie.objects.filter(id=id, favorited_by=request.user).exists()
+        template_data['is_favorited'] = is_favorited
     return render(request, 'movies/show.html', {'template_data': template_data})
 
 @login_required
@@ -84,3 +88,25 @@ def like_review(request, id, review_id):
 
 def template(request):
     return render(request, 'movies/template.html')
+
+def toggle_favorite(request, id):
+    movie = get_object_or_404(Movie, id=id)
+    if movie.favorited_by.filter(pk=request.user.pk).exists():
+        movie.favorited_by.remove(request.user)
+    else:
+        movie.favorited_by.add(request.user)
+    return redirect('movies.show', id=id)
+
+@login_required
+def favorites(request):
+    favs = request.user.favorite_movies.all().order_by('name')
+    template_data = {
+        'title': 'Favorite Movies',
+        'movies': favs,
+    }
+    return render(request, 'movies/template.html', {'template_data': template_data})
+
+def report(request, id, review_id):
+    review = get_object_or_404(Review, id=review_id)
+    review.delete()
+    return redirect('movies.show', id=id)

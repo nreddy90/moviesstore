@@ -9,3 +9,5 @@ def about(request):
     template_data = {}
     template_data['title'] = 'About'
     return render(request, 'home/about.html', {'template.data': template_data})
+def template(request):
+    return render(request, 'movies/template.html')

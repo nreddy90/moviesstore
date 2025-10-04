@@ -23,3 +23,10 @@ class Review(models.Model):
         return str(self.id) + ' - ' + self.movie.name
     def total_likes(self):
         return self.likes.count()
+    
+class Petition(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    likes = models.IntegerField(default=0)
+    def __str__(self):
+        return str(self.id)

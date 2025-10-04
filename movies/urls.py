@@ -12,5 +12,8 @@ urlpatterns = [
     path('template', views.template, name='movies.template'),
     path('<int:id>/favorite/toggle/', views.toggle_favorite, name='movies.toggle_favorite'),
     path('favorites/', views.favorites, name='movies.favorites'),
-    path('<int:id>/review/<int:review_id>/report/', views.report, name='movies.report')
+    path('<int:id>/review/<int:review_id>/report/', views.report, name='movies.report'),
+    path('petitions/', views.petition, name='movies.petitions'),
+    path('petitions/create/', views.create_petition, name='movies.create_petition'),
+    path('<int:id>/vote/', views.vote, name='movies.vote'),
 ]
